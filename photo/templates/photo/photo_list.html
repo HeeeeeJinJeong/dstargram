@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col"></div>
+    <div class="col-6">
+        {% for object in object_list %}
+        <div class="card" style="margin-top:2em;">
+            <div class="card-header">
+                {{object.author.username}}
+            </div>
+            <img src="{{object.image.url}}" class="card-img-top">
+
+            {% if object.text %}
+            <div class="card-body">
+                <p class="card-text">{{object.text}}</p>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <a href="/" class="list-group list-group-flush">Like</a>
+                <a href="{{object.get_absolute_url}}" class="card-link">댓글 달기</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

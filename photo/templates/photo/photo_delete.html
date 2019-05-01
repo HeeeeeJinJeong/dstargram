@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Photo Delete
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col"></div>
+    <div class="col-12 col-xl-8">
+
+        <div class="alert alert-info" role="alert">
+            Do you want to delete?
+        </div>
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Delete OK">
+        </form>
+
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

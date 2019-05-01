@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Photo Update
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col"></div>
+    <div class="col-6">
+
+        <div class="alert alert-info" role="alert">Please enter your photo information</div>
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+            {{form.as_p}}
+            <input type="submit" value="Update">
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}
