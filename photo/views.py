@@ -39,6 +39,14 @@ class PhotoSaveList(LoginRequiredMixin, ListView):
         queryset = user.save_post.all()
         return queryset
 
+class PhotoMyList(LoginRequiredMixin, ListView):
+    model = Photo
+    template_name = 'photo/photo_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = user.mylist.all()
+        return queryset
 
 class PhotoCreate(LoginRequiredMixin, CreateView):
     model = Photo

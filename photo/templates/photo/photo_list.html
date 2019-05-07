@@ -29,7 +29,7 @@
                     <span class="float-left btn btn-outline-danger">{{object.like.all.count}}</span>
                     {% endif %}
 
-                    <a href="{% url 'photo:save' object.id %}" class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
+                    <a href="{% url 'photo:favorite' object.id %}" class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
                 </li>
             </ul>
 

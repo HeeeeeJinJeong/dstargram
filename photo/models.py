@@ -32,6 +32,8 @@ class Photo(models.Model):
     # save 정보 저장
     favorite = models.ManyToManyField(User, related_name='save_post', blank=True)
 
+    mylist = models.ManyToManyField(User, related_name='mylist', blank=True)
+
     class Meta:
         ordering = ['-created']
 
