@@ -26,6 +26,12 @@ class Photo(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    # like 정보 저장
+    like = models.ManyToManyField(User, related_name='like_post', blank=True)
+
+    # save 정보 저장
+    favorite = models.ManyToManyField(User, related_name='save_post', blank=True)
+
     class Meta:
         ordering = ['-created']
 

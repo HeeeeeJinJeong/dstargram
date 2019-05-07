@@ -1,4 +1,8 @@
 Django==2.2
+django-disqus==0.5
+mock==2.0.0
+pbr==5.2.0
 Pillow==6.0.0
 pytz==2019.1
+six==1.12.0
 sqlparse==0.3.0

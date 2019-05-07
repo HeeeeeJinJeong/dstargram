@@ -8,59 +8,129 @@
     {% endblock %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
 </head>
+
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light d-flex">
+    <div class="d-flex">
+        <a class="navbar-brand btn btn-outline-dark float-left" href="/">Dstargram</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
 
-<ul class="nav">
-    <li class="nav-item">
-        <a class="nav-link active" href="/">
-            <button type="button" class="btn btn-outline-dark">Dstargram</button>
-        </a>
-    </li>
-</ul>
+    <div class="d-flex justify-content-between">
+        <ul class="nav">
+            {% if user.is_authenticated %}
+            <form class="form-inline">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">@</span>
+                    </div>
 
-<ul class="nav justify-content-end">
-    {% if user.is_authenticated %}
-    <form class="form-inline">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">@</span>
-            </div>
-            <input type="text" class="form-control" placeholder="Username" aria-label="Username"
-                   aria-describedby="basic-addon1">
-        </div>
-    </form>
+                    <input type="text" class="form-control" placeholder="Username" aria-label="Username"
+                           aria-describedby="basic-addon1">
+                </div>
+            </form>
+        </ul>
 
-    <li class="nav-item">
-        <a class="nav-link" href="#">Tag</a>
-    </li>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tag</a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'photo:create' %}">Upload</a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/">MyProfile</a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="#">MyProfile</a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'photo:create' %}">Upload</a>
+            </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'accounts:signout' %}">Sign out</a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/">Save Post</a>
+            </li>
 
-    {% else %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'accounts:signin' %}">Sign in</a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/">Like Post</a>
+            </li>
 
-    <li class="nav-item justify-content-end">
-        <a class="nav-link" href="#">Sign up</a>
-    </li>
-    {% endif %}
-</ul>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:signout' %}">Sign out</a>
+            </li>
 
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:signin' %}">Sign in</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:signup' %}">Sign up</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+{% load static %}
+<!--<img src="{% static 'images/button_image.png' %}">-->
+<style>
+    .btn-like {
+        display:inline-block;
+        width:47px;
+        height:50px;
+        background:url({% static 'images/button_image.png' %});
+        background-position:-100px -399px;
+        text-indent:-9999px;
+        overflow:hidden;
+        border:none;
+    }
+
+    .btn-like.active {
+        background-position:-50px -399px;
+    }
+
+    .btn-save {
+        display:inline-block;
+        width:45px;
+        height:50px;
+        background:url({% static 'images/button_image.png' %});
+        background-position:-521px -199px;
+        text-indent:-9999px;
+        overflow:hidden;
+        border:none;
+    }
+
+    .btn-save.active{
+        background-position:-520px -49px;
+    }
+
+
+
+
+
+
+
+
+
+</style>
 
 <div class="container">
+    {% if messages %}
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-6">
+
+            {% for message in messages %}
+            <div class="alert alert-{{message.tags}}">{{message}}</div>
+            {% endfor %}
+
+        </div>
+        <div class="col"></div>
+    </div>
+    {% endif %}
+
     {% block content %}
     {% endblock %}
 </div>
@@ -77,6 +147,29 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(function() {
+        $('.btn-like').click(function(e) {
+            //e.preventDefault();
+            //$(this).toggleClass('active');
+            //$(this).blur();
+        });
 
+        $('.btn-save').click(function(e) {
+            //e.preventDefault();
+            //$(this).toggleClass('active');
+            //$(this).blur();
+        });
+    });
+
+
+
+
+
+
+
+
+
+</script>
 </body>
 </html>

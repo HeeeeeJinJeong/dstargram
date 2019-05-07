@@ -10,10 +10,8 @@
             <div class="card-header">
                 {{object.author.username}}
             </div>
+
             <img src="{{object.image.url}}" class="card-img-top">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">Like</li>
-            </ul>
 
             {% if object.text %}
             <div class="card-body">
@@ -21,12 +19,32 @@
             </div>
             {% endif %}
 
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <a href="{% url 'photo:like' object.id %}" class="float-left btn-like {%if user in object.like.all%}active{%endif%}">Like</a>
+                    {% if object.like.all.count %}
+                    <span class="float-left">{{object.like.all.count}}</span>
+                    {% endif %}
+
+                    <a href="{% url 'photo:save' object.id %}" class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
+                </li>
+
+                <li class="list-group-item">
+                    <a href="{% url 'photo:update' object.id %}" class="card-link">수정</a>
+<!--                <form action="{% url 'photo:delete' object.id %}" value="Post">-->
+<!--                    {% csrf_token %}-->
+<!--                    <input type="submit" value="Post Delete" class="btn btn-danger">-->
+<!--                </form>-->
+                    <a href="{% url 'photo:delete' object.id %}" class="card-link">삭제</a>
+                </li>
+            </ul>
+
             <div class="card-body">
-                <a href="{% url 'photo:update' object.id %}" class="card-link">수정</a>
-                <a href="{% url 'photo:delete' object.id %}" class="card-link">삭제</a>
+                {# load xxx -> 해당 태그 기능을 지금부터 사용하겠다 라는 뜻 #}
+                {% load disqus_tags %}
+                {% disqus_show_comments %}
             </div>
         </div>
-
     </div>
     <div class="col"></div>
 </div>

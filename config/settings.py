@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'photo',
+    'disqus',
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
@@ -127,12 +129,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 # 로그인 후 profile 페이지 대신 이동할 페이지 주소 설정
 LOGIN_REDIRECT_URL = '/'
 
+# 로그인 페이지의 url 알려주기
+from django.urls import reverse_lazy
+LOGIN_URL = reverse_lazy('accounts:signin')
 
-
-
-
-
-
-
-
-
+# django-disqus : 데이터베이스가 필요없음 -> disqus.com에서 관리함
+# django.contrib.sites : 우리 프로젝트 사이트 정보 관리
+DISQUS_WEBSITE_SHORTNAME = 'wps-dstargram'
+SITE_ID = 1
