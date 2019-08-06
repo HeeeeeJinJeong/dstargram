@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
+Photo List
 {% endblock %}
 
 {% block content %}
@@ -24,12 +25,14 @@
 
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
-                    <a href="{% url 'photo:like' object.id %}" class="float-left btn-like {%if user in object.like.all%}active{%endif%}">Like</a>
+                    <a href="{% url 'photo:like' object.id %}"
+                       class="float-left btn-like {%if user in object.like.all%}active{%endif%}">Like</a>
                     {% if object.like.all.count %}
                     <span class="float-left btn btn-outline-danger">{{object.like.all.count}}</span>
                     {% endif %}
 
-                    <a href="{% url 'photo:favorite' object.id %}" class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
+                    <a href="{% url 'photo:favorite' object.id %}"
+                       class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
                 </li>
             </ul>
 
@@ -40,7 +43,7 @@
         {% endfor %}
 
     </div>
-
     <div class="col"></div>
 </div>
+
 {% endblock %}

@@ -11,11 +11,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # 믹스인 : 클래스형 뷰
 # 데코레이터 : 함수형 뷰
 
-from .models import Photo
+from .models import *
 
 class PhotoList(LoginRequiredMixin, ListView):
     model = Photo
     template_name = 'photo/photo_list.html'
+    # paginate_by = 2
+
+
+class PhotoMyList(LoginRequiredMixin, ListView):
+    model = Photo
+    template_name = 'photo/photo_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = user.photos.all()
+        return queryset
 
 
 class PhotoLikeList(LoginRequiredMixin, ListView):
@@ -37,15 +48,6 @@ class PhotoSaveList(LoginRequiredMixin, ListView):
         # 로그인 한 유저가 저장을 클릭한 글을 찾아서 반환
         user = self.request.user
         queryset = user.save_post.all()
-        return queryset
-
-class PhotoMyList(LoginRequiredMixin, ListView):
-    model = Photo
-    template_name = 'photo/photo_list.html'
-
-    def get_queryset(self):
-        user = self.request.user
-        queryset = user.mylist.all()
         return queryset
 
 class PhotoCreate(LoginRequiredMixin, CreateView):
@@ -128,6 +130,13 @@ class PhotoDetail(LoginRequiredMixin, DetailView):
     model = Photo
     template_name = 'photo/photo_detail.html'
 
+    def photo_detail(request, photo_id):
+        photo = Photo.objects.get(pk=photo_id)
+        comment_form = CommentForm()
+        comments = photo.comments.all()
+        return render(request,
+                      {'object': photo, 'comments': comments, 'comment_form': comment_form})
+
 
 from django.views.generic.base import View
 from django.http import HttpResponseForbidden
@@ -183,3 +192,105 @@ class PhotoSave(View):
             path = urlparse(referer_url).path
 
             return HttpResponseRedirect(path)
+
+# signal
+# 1. 어떤 시그널이 발생했을 때 반응할 것인지?
+# 2. 해당 시그널이 발생한 여부 확인
+
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+import boto3
+from django.conf import settings
+
+
+@receiver(post_delete, sender=Photo) # 어떤 시그널이 발생헀는지, 누가 발생시켰는지
+def post_delete(sender, instance, **kwargs):
+    storage = instance.image.storage
+
+    if storage.exists(str(instance.image)):
+        storage.delete(str(instance.image))
+
+    # session = boto3.Session(
+    #     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    #     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    #     region_name=settings.AWS_REGION,
+    # )
+    #
+    # s3 = session.resource('s3')
+    #
+    # # s3 Object : s3 에 업로드 된 파일 객체를 얻어도는 클래스
+    # # arg1 : 버킷네임
+    # # arg2 : 파일경로 - key
+    # image = s3.Object(settings.AWS_STORAGE_BUCKET_NAME, "media/"+str(instance.image)) # 버킷 네임, 파일경로
+    # image.delete();;;
+
+from .forms import CommentForm
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.shortcuts import render, get_object_or_404
+
+# ajax사용해서 댓글 달기
+def comment_create(request, photo_id):
+    # ajax 기능에 의해 호출된 것인지 구분하기 위한 값
+    is_ajax = request.POST.get('is_ajax')
+
+    photo = get_object_or_404(Photo, pk=photo_id)
+    comment_form = CommentForm(request.POST)
+    comment_form.instance.author_id = request.user.id
+    comment_form.instance.photo_id = photo_id
+    if comment_form.is_valid():
+        comment = comment_form.save()
+
+    # 만약 ajax 가 호출되었다면 redirection 없이 Json 형태로 응답
+    if is_ajax:
+        # 데이터 만들어서 던져주기
+        html = render_to_string('photo/comment/comment_single.html', {'comment':comment})
+        return JsonResponse({'html':html})
+    return redirect(photo)
+
+def comment_update(request, comment_id):
+    is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET else (request.POST.get('is_ajax', False), request.POST)
+
+    comment = get_object_or_404(Comment, pk=comment_id)
+    photo = get_object_or_404(Photo, pk=comment.photo.id)
+    # user.is_staff
+    # user.is_superuser
+    if request.user != comment.author:
+        messages.warning(request, "권한 없음")
+        return redirect(photo)
+
+    if is_ajax:
+        form = CommentForm(data, instance=comment)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"works": True})
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect(photo)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'photo/comment/comment_update.html', {'form': form})
+
+
+def comment_delete(request, comment_id):
+    is_ajax = request.GET.get('is_ajax') if 'is_ajax' in request.GET else request.POST.get('is_ajax',False)
+    comment = get_object_or_404(Comment, pk=comment_id)
+    photo = get_object_or_404(Photo, pk=comment.photo.id)
+
+    if request.user != comment.author and not request.user.is_staff and request.user != photo.author:
+        messages.warning(request, "권한 없음")
+        return redirect(photo)
+
+    if is_ajax:
+        comment.delete()
+        return JsonResponse({"works":True})
+
+    if request.method == "POST":
+        comment.delete()
+        return redirect(photo)
+    else:
+        return render(request, 'photo/comment/comment_delete.html', {'object': comment})

@@ -36,13 +36,58 @@ class UserList(ListView):
     model = User
     template_name = 'accounts/user_list.html'
 
+
+class FollowerList(ListView):
+    model = Follow
+    template_name = 'accounts/follower_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = user.follower.all()
+        return queryset
+
+class FollowingList(ListView):
+    model = Follow
+    template_name = 'accounts/following_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = user.following.all()
+        return queryset
+
+from django.views.generic.base import View
+from django.http import HttpResponseForbidden
+from urllib.parse import urlparse
+from django.http import HttpResponseRedirect
+
+class Follow(View):
+    def get(self, request, *args, **kwargs):
+
+        # like를 할 정보가 있다면 진행, 없다면 중단
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden
+        else:
+            if 'follow_id' in kwargs:
+                follow_id = kwargs['follow_id']
+                follow = Follow.objects.get(pk=follow_id)
+
+                # 2) 누가?
+                user = request.user
+                if user in follow.me:
+                    follow.me.remove(user)
+                else:
+                    follow.you.add(user)
+
+            referer_url = request.META.get('HTTP_REFERER')
+            path = urlparse(referer_url).path
+
+            return HttpResponseRedirect(path)
+
 # 기본에 입력받는 뷰는 CreateView 를 상속 -> 커스텀이 힘듦
 # 회원가입 -> User 모델에 값을 입력받는다. -> CreateView
 # 회원가입시 모델 필드 외에 추가 입력이 필요하다.
 # 커스텀은 함수형 뷰가 적절
 from django.contrib.auth.models import User
-
-
 from .forms import SignUpForm
 
 def signup(request):
@@ -65,3 +110,22 @@ def signup(request):
         signup_form = SignUpForm()
 
     return render(request, 'accounts/signup.html', {'form':signup_form})
+
+from allauth.account.signals import user_signed_up
+from allauth.socialaccount.models import SocialAccount
+
+def naver_signup(request, user, **kwargs):
+    social_user = SocialAccount.objects.filter(user=user)
+
+    if social_user.exists():
+        user.last_name = social_user[0].extra_data['name']
+        user.save()
+
+
+# 시그널과 해당 함수를 connect
+# 시그널 연결방법
+# 1. receiver
+# 2. connect
+user_signed_up.connect(naver_signup)
+
+from django.http import JsonResponse

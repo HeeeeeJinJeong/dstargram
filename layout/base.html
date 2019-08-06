@@ -8,6 +8,7 @@
     {% endblock %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </head>
 
 <body>
@@ -20,8 +21,8 @@
         </button>
     </div>
 
-    <div class="d-flex justify-content-between">
-        <ul class="nav">
+    <div class="d-flex justify-content-end">
+        <ul class="nav float-right">
             {% if user.is_authenticated %}
             <form class="form-inline">
                 <div class="input-group">
@@ -40,8 +41,23 @@
                 <a class="nav-link" href="#">Tag</a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="/">MyProfile</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'photo:mylist' %}" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    MyProfile
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'photo:mylist' %}">MyPhoto</a>
+                    <div class="dropdown-divider"></div>
+
+                    <a class="dropdown-item" href="{% url 'photo:favorite_list' %}">Save Post</a>
+                    <a class="dropdown-item" href="{% url 'photo:like_list' %}">Like Post</a>
+
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'accounts:following_list' %}">Following</a>
+                    <a class="dropdown-item" href="{% url 'accounts:follower_list' %}">Follower</a>
+                </div>
             </li>
 
             <li class="nav-item">
@@ -49,20 +65,12 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'photo:favorite_list' %}">Save Post</a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'photo:like_list' %}">Like Post</a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:signout' %}">Sign out</a>
+                <a class="nav-link" href="{% url 'account_logout' %}">Log out</a>
             </li>
 
             {% else %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:signin' %}">Sign in</a>
+                <a class="nav-link" href="{% url 'account_login' %}">Log in</a>
             </li>
 
             <li class="nav-item">
@@ -86,11 +94,9 @@
         overflow:hidden;
         border:none;
     }
-
     .btn-like.active {
         background-position:-50px -399px;
     }
-
     .btn-save {
         display:inline-block;
         width:45px;
@@ -101,18 +107,9 @@
         overflow:hidden;
         border:none;
     }
-
     .btn-save.active{
         background-position:-520px -49px;
     }
-
-
-
-
-
-
-
-
 
 </style>
 
@@ -148,11 +145,12 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 <script type="text/javascript">
+    /*
     $(function() {
         $('.btn-like').click(function(e) {
-            //e.preventDefault();
-            //$(this).toggleClass('active');
-            //$(this).blur();
+            e.preventDefault();
+            $(this).toggleClass('active');
+            $(this).blur();
         });
 
         $('.btn-save').click(function(e) {
@@ -161,15 +159,25 @@
             //$(this).blur();
         });
     });
+    */
 
+    $(function() {
+        $('.btn_like').click(function(e){
+            // 원래 동작 금지(링크 클릭시 주소 이동)
+            e.preventDefault();
+            like_url = $(this).attr('href');
 
-
-
-
-
-
-
-
+            $.ajax({
+                url: like_url,
+                method:"POST",
+                data:{csrfmiddlewaretoken:csrf_token},
+            }).done(function(data) {
+                // like 숫자 더하기
+                // 빨간색으로 바꾸기
+            });
+            return false;
+        });
+    });
 </script>
 </body>
 </html>

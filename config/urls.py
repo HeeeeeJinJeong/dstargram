@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+# from django.conf import settings
 
 urlpatterns = [
     path('accounts/', include('accounts.urls')),
-    path('site_config/', admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('account/', include('allauth.urls')),
     path('',include('photo.urls')),
 ]
+
 
 # 특정 리소스를 static형태로 응답
 from django.conf.urls.static import static
@@ -31,4 +34,4 @@ from django.conf import settings
 # 개발 상태일 때만 사용 -> Deploy, Live일 때는 사용하지 않는다.
 # 1) 웹 서버가 해줘야 할 일
 # 2) 파일 서버를 별도로 셋팅
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

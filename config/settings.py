@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '6!8u4d7r(2^72hc!l6k!(#j+0v!5*_c@hai%ll-a0-qwtoi*#9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -41,6 +41,15 @@ INSTALLED_APPS = [
     'photo',
     'disqus',
     'django.contrib.sites',
+    'storages',
+    'sslserver',
+    'django_extensions',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.naver',
+    'allauth.socialaccount.providers.facebook',
 ]
 
 MIDDLEWARE = [
@@ -78,10 +87,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# pip install psycopg2-binary
+from etc import *
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE':'django.db.backends.postgresql_psycopg2',
+        'NAME':'catstargram',
+        'USER':'catstargram',
+        'PASSWORD':DATABASES_password,
+        'HOST':'catstargram.csymvcfzlofh.ap-northeast-2.rds.amazonaws.com',
+        'PORT':'5432',
     }
 }
 
@@ -124,11 +140,33 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+'''
+boto3 : 아마존S3 를 사용할 수 있게
+django-storages : 장고 프로젝트에서 특정 storages 를 사용할 수 있게
+'''
 
-MEDIA_URL = '/res/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+AWS_ACCESS_KEY_ID = 'AKIA56AAHJJ5JHB2JGO4'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_REGION = 'ap-northeast-2'
+AWS_STORAGE_BUCKET_NAME = 'catstargram.media.jjjinnn.com'
+AWS_S3_CUSTOM_DOMAIN = '%s' % (AWS_STORAGE_BUCKET_NAME)
+AWS_S3_SECURE_URLS = False
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_DEFAULT_ACL = 'public-read'
+AWS_LOCATION = 'static'
+
+STATIC_URL = 'http://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+DEFAULT_FILE_STORAGE = 'config.asset_storage.MediaStorage'
+
+# MEDIA_URL = '/res/'
+# MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # 로그인 후 profile 페이지 대신 이동할 페이지 주소 설정
 LOGIN_REDIRECT_URL = '/'
@@ -137,7 +175,13 @@ LOGIN_REDIRECT_URL = '/'
 from django.urls import reverse_lazy
 LOGIN_URL = reverse_lazy('accounts:signin')
 
-# django-disqus : 데이터베이스가 필요없음 -> disqus.com에서 관리함
-# django.contrib.sites : 우리 프로젝트 사이트 정보 관리
-DISQUS_WEBSITE_SHORTNAME = 'wps-dstargram'
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
 SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.CustomUserBackend',
+]

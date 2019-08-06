@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col"></div>
+    <div class="col-6">
+        <table class="table text-center">
+            <thead>
+            <tr>
+                <th scope="col">UserName</th>
+                <th scope="col">Un/Follow</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for object in object_list %}
+            <tr>
+                <td>{{object.me.username}}</td>
+                <td><a href="{% url 'accounts:follow' object.id %}" class="btn btn-xs btn-outline-success">Follow</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

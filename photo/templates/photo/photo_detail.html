@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+
 {% block title %}
+Photo Detail
 {% endblock %}
 
 {% block content %}
@@ -21,28 +23,37 @@
 
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
-                    <a href="{% url 'photo:like' object.id %}" class="float-left btn-like {%if user in object.like.all%}active{%endif%}">Like</a>
+                    <a href="{% url 'photo:like' object.id %}"
+                       class="float-left btn-like {%if user in object.like.all%}active{%endif%}">Like</a>
                     {% if object.like.all.count %}
                     <span class="float-left">{{object.like.all.count}}</span>
                     {% endif %}
 
-                    <a href="{% url 'photo:favorite' object.id %}" class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
+                    <a href="{% url 'photo:favorite' object.id %}"
+                       class="float-right btn-save {%if user in object.favorite.all%}active{%endif%}">Save</a>
                 </li>
 
                 <li class="list-group-item">
                     <a href="{% url 'photo:update' object.id %}" class="card-link">수정</a>
-<!--                <form action="{% url 'photo:delete' object.id %}" value="Post">-->
-<!--                    {% csrf_token %}-->
-<!--                    <input type="submit" value="Post Delete" class="btn btn-danger">-->
-<!--                </form>-->
                     <a href="{% url 'photo:delete' object.id %}" class="card-link">삭제</a>
                 </li>
+
+                <form action="{% url 'photo:comment_create' object.id %}" method="post" id="comment_form">
+                    {% csrf_token %}
+                    <input type="hidden" value="" name="is_ajax">
+                    {{comment_form.as_p}}
+                    <input type="submit" value="comment" class="btn btn-outline-secondary float-right">
+                </form>
+
+                <div id="docs_comment_list_area">
+                    {% include 'photo/comment_list.html' %}
+                </div>
             </ul>
 
             <div class="card-body">
                 {# load xxx -> 해당 태그 기능을 지금부터 사용하겠다 라는 뜻 #}
-                {% load disqus_tags %}
-                {% disqus_show_comments %}
+                {# {% load disqus_tags %} #}
+                {# {% disqus_show_comments %} #}
             </div>
         </div>
     </div>
