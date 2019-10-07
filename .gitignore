@@ -1,4 +1,4 @@
-etc.py
+secrets.json
 *.pyc
 *~
 /venv

@@ -20,7 +20,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '6!8u4d7r(2^72hc!l6k!(#j+0v!5*_c@hai%ll-a0-qwtoi*#9'
+import os, json
+from django.core.exceptions import ImproperlyConfigured
+
+
+secret_file = os.path.join(BASE_DIR, 'secrets.json')
+
+with open(secret_file) as f:
+    secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets):
+    # 비밀 변수를 가져오거나 명시적 예외를 반환한다.
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
+
+SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -88,21 +105,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 # pip install psycopg2-binary
-from etc import *
+# from etc import *
 
 DATABASES = {
     'default': {
-        'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME':'catstargram',
-        'USER':'catstargram',
-        'PASSWORD':DATABASES_password,
-        'HOST':'catstargram.csymvcfzlofh.ap-northeast-2.rds.amazonaws.com',
-        'PORT':'5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
-import dj_database_url
-DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
+# import dj_database_url
+# DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -140,33 +153,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-'''
-boto3 : 아마존S3 를 사용할 수 있게
-django-storages : 장고 프로젝트에서 특정 storages 를 사용할 수 있게
-'''
 
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-AWS_ACCESS_KEY_ID = 'AKIA56AAHJJ5JHB2JGO4'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_REGION = 'ap-northeast-2'
-AWS_STORAGE_BUCKET_NAME = 'catstargram.media.jjjinnn.com'
-AWS_S3_CUSTOM_DOMAIN = '%s' % (AWS_STORAGE_BUCKET_NAME)
-AWS_S3_SECURE_URLS = False
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-AWS_DEFAULT_ACL = 'public-read'
-AWS_LOCATION = 'static'
 
-STATIC_URL = 'http://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-DEFAULT_FILE_STORAGE = 'config.asset_storage.MediaStorage'
-
-# MEDIA_URL = '/res/'
-# MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/res/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # 로그인 후 profile 페이지 대신 이동할 페이지 주소 설정
 LOGIN_REDIRECT_URL = '/'

@@ -68,7 +68,7 @@ class Comment(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
     text = models.CharField(max_length=400)
-    created = models.DateTimeField(auo_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
